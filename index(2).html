@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>EPS Prof Manager</title>
+<style>
+:root{
+  --bg:#f3f6fb; --card:#fff; --text:#1f2937; --muted:#6b7280;
+  --primary:#1769aa; --primary2:#0f4f82; --border:#dbe3ec;
+  --ok:#e7f6ec; --warn:#fff4df; --danger:#fdeaea; --info:#eaf2ff;
+}
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial,Helvetica,sans-serif;background:var(--bg);color:var(--text)}
+header{
+  background:linear-gradient(135deg,var(--primary2),var(--primary));
+  color:white;padding:14px 18px;position:sticky;top:0;z-index:20;
+  box-shadow:0 3px 12px rgba(0,0,0,.15)
+}
+.brand{display:flex;align-items:center;gap:12px;max-width:1200px;margin:auto}
+.logo{
+  width:48px;height:48px;border-radius:14px;background:white;color:var(--primary2);
+  display:flex;align-items:center;justify-content:center;font-size:26px;font-weight:bold;
+}
+.brand h1{font-size:21px;margin:0}
+.brand p{margin:3px 0 0;font-size:12px;opacity:.9}
+nav{background:#fff;border-bottom:1px solid var(--border);position:sticky;top:76px;z-index:15}
+.navwrap{max-width:1200px;margin:auto;padding:8px 10px;display:flex;gap:8px;overflow:auto}
+.tabbtn{
+  white-space:nowrap;border:0;background:#eef3f8;color:#334155;padding:9px 12px;
+  border-radius:9px;font-weight:700;cursor:pointer
+}
+.tabbtn.active{background:var(--primary);color:#fff}
+main{max-width:1200px;margin:18px auto;padding:0 12px 50px}
+.tab{display:none}.tab.active{display:block}
+.card{
+  background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px;
+  margin-bottom:14px;box-shadow:0 2px 8px rgba(0,0,0,.04)
+}
+h2{font-size:18px;margin:0 0 12px}
+h3{font-size:15px;margin:0 0 10px}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.grid3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.grid4{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+label{font-size:12px;font-weight:700;display:block;margin-bottom:5px}
+input,select,textarea{
+  width:100%;padding:10px;border:1px solid var(--border);border-radius:9px;
+  background:white;color:var(--text);font-size:14px
+}
+textarea{min-height:84px;resize:vertical}
+button{
+  border:0;border-radius:9px;padding:9px 12px;font-weight:700;cursor:pointer;
+  background:var(--primary);color:white
+}
+button.secondary{background:#475569}
+button.light{background:#eef2f7;color:#1f2937}
+button.danger{background:#b42318}
+.actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px}
+.kpi{background:#fff;border:1px solid var(--border);border-radius:12px;padding:14px}
+.kpi strong{font-size:24px;display:block}
+.kpi span{font-size:12px;color:var(--muted)}
+.tablewrap{overflow:auto}
+table{width:100%;border-collapse:collapse;min-width:700px}
+th,td{padding:10px;border-bottom:1px solid #edf1f5;text-align:left;font-size:13px;vertical-align:middle}
+th{background:#f8fafc;position:sticky;top:0}
+.badge{display:inline-flex;align-items:center;gap:5px;padding:5px 8px;border-radius:999px;font-size:12px;font-weight:700}
+.present{background:var(--ok)} .absent{background:var(--danger)} .late{background:var(--warn)}
+.sick{background:#f3e8ff} .exempt{background:var(--info)}
+.status-select{min-width:145px}
+.student-name{font-weight:700}
+.small{font-size:12px;color:var(--muted)}
+.empty{color:var(--muted);text-align:center;padding:20px}
+.profileBox{display:flex;align-items:center;gap:14px}
+.avatar{
+  width:66px;height:66px;border-radius:50%;background:#e8f0f8;color:var(--primary2);
+  display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:bold
+}
+.legend{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0}
+.noteBox{background:#f8fafc;border:1px dashed var(--border);padding:10px;border-radius:9px}
+@media(max-width:850px){
+  .grid,.grid3,.grid4,.kpis{grid-template-columns:1fr}
+  nav{top:76px}
+}
+@media print{
+  header,nav,.no-print,.actions{display:none!important}
+  body{background:#fff}
+  main{max-width:none;margin:0;padding:0}
+  .tab{display:none!important}.tab.active{display:block!important}
+  .card{border:none;box-shadow:none;padding:8px}
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="brand">
+    <div class="logo">🏃</div>
+    <div>
+      <h1>EPS Prof Manager</h1>
+      <p>Gestion pédagogique complète pour professeur d'Éducation Physique et Sportive</p>
+    </div>
+  </div>
+</header>
+
+<nav>
+  <div class="navwrap">
+    <button class="tabbtn active" onclick="showTab('dashboard',this)">🏠 Tableau de bord</button>
+    <button class="tabbtn" onclick="showTab('teacher',this)">👨‍🏫 Professeur</button>
+    <button class="tabbtn" onclick="showTab('students',this)">👥 Élèves</button>
+    <button class="tabbtn" onclick="showTab('attendance',this)">📋 Présence</button>
+    <button class="tabbtn" onclick="showTab('lessons',this)">📝 Préparation</button>
+    <button class="tabbtn" onclick="showTab('evaluation',this)">📊 Évaluation</button>
+    <button class="tabbtn" onclick="showTab('reports',this)">🗂️ Fiches & rapports</button>
+  </div>
+</nav>
+
+<main>
+<section id="dashboard" class="tab active">
+  <div class="kpis">
+    <div class="kpi"><strong id="kpiClasses">0</strong><span>Classes</span></div>
+    <div class="kpi"><strong id="kpiStudents">0</strong><span>Élèves</span></div>
+    <div class="kpi"><strong id="kpiLessons">0</strong><span>Fiches de séance</span></div>
+    <div class="kpi"><strong id="kpiAbsences">0</strong><span>Absences enregistrées</span></div>
+  </div>
+  <div class="card">
+    <h2>Bienvenue dans votre espace professeur EPS</h2>
+    <p>Cette application regroupe la préparation des séances, la liste des élèves, l'appel, les dispenses, les évaluations et les fiches de suivi.</p>
+    <div class="legend">
+      <span class="badge present">✅ Présent</span>
+      <span class="badge absent">❌ Absent</span>
+      <span class="badge late">⏰ En retard</span>
+      <span class="badge sick">🤒 Malade</span>
+      <span class="badge exempt">🩹 Dispensé</span>
+    </div>
+  </div>
+</section>
+
+<section id="teacher" class="tab">
+  <div class="card">
+    <h2>Fiche du professeur</h2>
+    <div class="grid3">
+      <div><label>Nom et prénom</label><input id="tName" placeholder="Ex. CHERIF Aya"></div>
+      <div><label>Établissement</label><input id="tSchool"></div>
+      <div><label>Année scolaire</label><input id="tYear" placeholder="2026-2027"></div>
+      <div><label>Discipline</label><input id="tSubject" value="Éducation Physique et Sportive"></div>
+      <div><label>Ville / Province</label><input id="tCity"></div>
+      <div><label>Identifiant / Matricule</label><input id="tId"></div>
+    </div>
+    <div class="grid" style="margin-top:12px">
+      <div><label>Emploi du temps / observations</label><textarea id="tSchedule"></textarea></div>
+      <div><label>Objectifs professionnels / notes</label><textarea id="tNotes"></textarea></div>
+    </div>
+    <div class="actions">
+      <button onclick="saveTeacher()">💾 Enregistrer la fiche</button>
+      <button class="secondary" onclick="window.print()">🖨️ Imprimer</button>
+    </div>
+  </div>
+</section>
+
+<section id="students" class="tab">
+  <div class="card">
+    <h2>Classes</h2>
+    <div class="grid3">
+      <div><label>Nom de la classe</label><input id="className" placeholder="Ex. 3AC-1"></div>
+      <div><label>Niveau</label><input id="classLevel" placeholder="Ex. 3AC"></div>
+      <div><label>Effectif prévu</label><input id="classSize" type="number" min="0"></div>
+    </div>
+    <div class="actions"><button onclick="addClass()">➕ Ajouter la classe</button></div>
+    <div id="classList" class="legend"></div>
+  </div>
+
+  <div class="card">
+    <h2>Ajouter un élève</h2>
+    <div class="grid4">
+      <div><label>Classe</label><select id="studentClass"></select></div>
+      <div><label>Nom</label><input id="studentLast"></div>
+      <div><label>Prénom</label><input id="studentFirst"></div>
+      <div><label>N°</label><input id="studentNumber" type="number" min="1"></div>
+    </div>
+    <div class="grid3" style="margin-top:12px">
+      <div><label>Sexe</label><select id="studentSex"><option>F</option><option>M</option></select></div>
+      <div><label>Information médicale utile</label><input id="studentMedical" placeholder="Optionnel"></div>
+      <div><label>Observation</label><input id="studentObs"></div>
+    </div>
+    <div class="actions"><button onclick="addStudent()">👤 Ajouter l'élève</button></div>
+  </div>
+
+  <div class="card">
+    <h2>Liste des élèves</h2>
+    <div class="grid3 no-print">
+      <div><label>Filtrer par classe</label><select id="filterClass" onchange="renderStudents()"></select></div>
+      <div><label>Rechercher</label><input id="studentSearch" oninput="renderStudents()" placeholder="Nom ou prénom"></div>
+      <div></div>
+    </div>
+    <div class="tablewrap">
+      <table>
+        <thead><tr><th>N°</th><th>Élève</th><th>Classe</th><th>Info</th><th>Observation</th><th class="no-print">Action</th></tr></thead>
+        <tbody id="studentsBody"></tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<section id="attendance" class="tab">
+  <div class="card">
+    <h2>Appel et état des élèves</h2>
+    <div class="grid3">
+      <div><label>Classe</label><select id="attClass" onchange="renderAttendance()"></select></div>
+      <div><label>Date</label><input id="attDate" type="date" onchange="renderAttendance()"></div>
+      <div><label>Activité / séance</label><input id="attActivity" placeholder="Ex. Handball"></div>
+    </div>
+    <div class="legend">
+      <span class="badge present">✅ Présent</span>
+      <span class="badge absent">❌ Absent</span>
+      <span class="badge late">⏰ Retard</span>
+      <span class="badge sick">🤒 Malade</span>
+      <span class="badge exempt">🩹 Dispensé</span>
+    </div>
+    <div class="tablewrap">
+      <table>
+        <thead><tr><th>N°</th><th>Élève</th><th>État</th><th>Observation du jour</th></tr></thead>
+        <tbody id="attendanceBody"></tbody>
+      </table>
+    </div>
+    <div class="actions">
+      <button onclick="saveAttendance()">💾 Enregistrer l'appel</button>
+      <button class="secondary" onclick="markAllPresent()">✅ Tous présents</button>
+      <button class="light" onclick="window.print()">🖨️ Imprimer</button>
+    </div>
+  </div>
+</section>
+
+<section id="lessons" class="tab">
+  <div class="card">
+    <h2>Préparation d'une séance EPS</h2>
+    <div class="grid4">
+      <div><label>Classe</label><select id="lessonClass"></select></div>
+      <div><label>APSA</label>
+        <select id="lessonApsa">
+          <option>Course de durée</option><option>Sprint</option><option>Relais</option>
+          <option>Saut en longueur</option><option>Handball</option><option>Volleyball</option>
+          <option>Basketball</option><option>Football</option><option>Rugby</option>
+          <option>Gymnastique</option><option>Autre</option>
+        </select>
+      </div>
+      <div><label>Date</label><input id="lessonDate" type="date"></div>
+      <div><label>Durée</label><input id="lessonDuration" placeholder="60 min"></div>
+    </div>
+    <div class="grid" style="margin-top:12px">
+      <div><label>Compétence visée</label><textarea id="lessonCompetence"></textarea></div>
+      <div><label>Objectif de séance</label><textarea id="lessonObjective"></textarea></div>
+      <div><label>Prérequis</label><textarea id="lessonPrereq"></textarea></div>
+      <div><label>Matériel</label><textarea id="lessonMaterial"></textarea></div>
+      <div><label>Échauffement</label><textarea id="lessonWarmup"></textarea></div>
+      <div><label>Situation d'apprentissage 1</label><textarea id="lessonS1"></textarea></div>
+      <div><label>Situation d'apprentissage 2</label><textarea id="lessonS2"></textarea></div>
+      <div><label>Situation d'apprentissage 3</label><textarea id="lessonS3"></textarea></div>
+      <div><label>Critères de réussite</label><textarea id="lessonCriteria"></textarea></div>
+      <div><label>Variables didactiques</label><textarea id="lessonVariables"></textarea></div>
+      <div><label>Retour au calme</label><textarea id="lessonCooldown"></textarea></div>
+      <div><label>Bilan / remédiation</label><textarea id="lessonReview"></textarea></div>
+    </div>
+    <div class="actions">
+      <button onclick="saveLesson()">💾 Enregistrer la fiche</button>
+      <button class="secondary" onclick="window.print()">🖨️ Imprimer / PDF</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Fiches enregistrées</h2>
+    <div id="lessonList"></div>
+  </div>
+</section>
+
+<section id="evaluation" class="tab">
+  <div class="card">
+    <h2>Évaluation des élèves</h2>
+    <div class="grid3">
+      <div><label>Classe</label><select id="evalClass" onchange="renderEvaluation()"></select></div>
+      <div><label>APSA / activité</label><input id="evalApsa" placeholder="Ex. Volleyball"></div>
+      <div><label>Date</label><input id="evalDate" type="date"></div>
+    </div>
+    <div class="tablewrap" style="margin-top:12px">
+      <table>
+        <thead><tr><th>N°</th><th>Élève</th><th>Performance /10</th><th>Maîtrise /10</th><th>Note /20</th><th>Observation</th></tr></thead>
+        <tbody id="evalBody"></tbody>
+      </table>
+    </div>
+    <div class="actions"><button onclick="saveEvaluation()">💾 Enregistrer l'évaluation</button></div>
+  </div>
+</section>
+
+<section id="reports" class="tab">
+  <div class="card">
+    <h2>Fiche individuelle d'un élève</h2>
+    <div class="grid3 no-print">
+      <div><label>Classe</label><select id="reportClass" onchange="refreshReportStudents()"></select></div>
+      <div><label>Élève</label><select id="reportStudent" onchange="renderStudentReport()"></select></div>
+      <div><label>&nbsp;</label><button onclick="window.print()">🖨️ Imprimer la fiche</button></div>
+    </div>
+    <div id="studentReport" class="noteBox">Choisissez un élève.</div>
+  </div>
+</section>
+</main>
+
+<script>
+const DBKEY="eps_prof_manager_v2";
+let db = JSON.parse(localStorage.getItem(DBKEY) || '{"teacher":{},"classes":[],"students":[],"attendance":[],"lessons":[],"evaluations":[]}');
+
+function persist(){ localStorage.setItem(DBKEY,JSON.stringify(db)); updateDashboard(); }
+function esc(s){ return String(s??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#039;"}[m])); }
+function uid(){ return Date.now()+Math.floor(Math.random()*10000); }
+
+function showTab(id,btn){
+  document.querySelectorAll(".tab").forEach(x=>x.classList.remove("active"));
+  document.querySelectorAll(".tabbtn").forEach(x=>x.classList.remove("active"));
+  document.getElementById(id).classList.add("active"); btn.classList.add("active");
+  if(id==="reports"){refreshReportStudents();renderStudentReport();}
+}
+
+function updateDashboard(){
+  document.getElementById("kpiClasses").textContent=db.classes.length;
+  document.getElementById("kpiStudents").textContent=db.students.length;
+  document.getElementById("kpiLessons").textContent=db.lessons.length;
+  document.getElementById("kpiAbsences").textContent=db.attendance.filter(a=>a.status==="Absent").length;
+}
+
+function saveTeacher(){
+  db.teacher={
+    name:tName.value,school:tSchool.value,year:tYear.value,subject:tSubject.value,
+    city:tCity.value,id:tId.value,schedule:tSchedule.value,notes:tNotes.value
+  }; persist(); alert("Fiche professeur enregistrée.");
+}
+function loadTeacher(){
+  const t=db.teacher||{};
+  tName.value=t.name||"";tSchool.value=t.school||"";tYear.value=t.year||"";
+  tSubject.value=t.subject||"Éducation Physique et Sportive";tCity.value=t.city||"";
+  tId.value=t.id||"";tSchedule.value=t.schedule||"";tNotes.value=t.notes||"";
+}
+
+function addClass(){
+  if(!className.value.trim()) return alert("Indiquez le nom de la classe.");
+  db.classes.push({id:uid(),name:className.value.trim(),level:classLevel.value.trim(),size:classSize.value});
+  className.value="";classLevel.value="";classSize.value="";
+  persist(); refreshClassSelects(); renderClasses(); renderStudents();
+}
+function deleteClass(id){
+  if(!confirm("Supprimer cette classe ? Les élèves ne seront pas supprimés.")) return;
+  db.classes=db.classes.filter(c=>c.id!==id);persist();refreshClassSelects();renderClasses();renderStudents();
+}
+function renderClasses(){
+  const root=document.getElementById("classList");
+  if(!db.classes.length){root.innerHTML="<span class='small'>Aucune classe.</span>";return;}
+  root.innerHTML=db.classes.map(c=>`<span class="badge exempt">🏫 ${esc(c.name)} <button class="danger" style="padding:2px 6px;margin-left:4px" onclick="deleteClass(${c.id})">×</button></span>`).join("");
+}
+function refreshClassSelects(){
+  const ids=["studentClass","filterClass","attClass","lessonClass","evalClass","reportClass"];
+  ids.forEach(id=>{
+    const el=document.getElementById(id); const cur=el.value;
+    el.innerHTML=(id==="filterClass"?'<option value="">Toutes les classes</option>':'')+
+      db.classes.map(c=>`<option value="${c.id}">${esc(c.name)}</option>`).join("");
+    if([...el.options].some(o=>o.value===cur)) el.value=cur;
+  });
+  refreshReportStudents();
+}
+
+function addStudent(){
+  if(!studentClass.value||!studentLast.value.trim()||!studentFirst.value.trim()) return alert("Classe, nom et prénom sont obligatoires.");
+  db.students.push({
+    id:uid(),classId:Number(studentClass.value),last:studentLast.value.trim(),first:studentFirst.value.trim(),
+    number:studentNumber.value||"",sex:studentSex.value,medical:studentMedical.value.trim(),obs:studentObs.value.trim()
+  });
+  studentLast.value="";studentFirst.value="";studentNumber.value="";studentMedical.value="";studentObs.value="";
+  persist();renderStudents();renderAttendance();renderEvaluation();refreshReportStudents();
+}
+function deleteStudent(id){
+  if(!confirm("Supprimer cet élève ?")) return;
+  db.students=db.students.filter(s=>s.id!==id);persist();renderStudents();renderAttendance();renderEvaluation();refreshReportStudents();
+}
+function classNameById(id){ return db.classes.find(c=>c.id===Number(id))?.name || "—"; }
+
+function renderStudents(){
+  const fc=filterClass.value, q=studentSearch.value.toLowerCase();
+  const rows=db.students
+    .filter(s=>(!fc||String(s.classId)===fc) && (`${s.last} ${s.first}`.toLowerCase().includes(q)))
+    .sort((a,b)=>(Number(a.number)||999)-(Number(b.number)||999))
+    .map(s=>`<tr>
+      <td>${esc(s.number)}</td>
+      <td><span class="student-name">${esc(s.last)} ${esc(s.first)}</span></td>
+      <td>${esc(classNameById(s.classId))}</td>
+      <td>${s.medical?`🤒 ${esc(s.medical)}`:"—"}</td>
+      <td>${esc(s.obs||"—")}</td>
+      <td class="no-print"><button class="danger" onclick="deleteStudent(${s.id})">Supprimer</button></td>
+    </tr>`).join("");
+  studentsBody.innerHTML=rows||`<tr><td colspan="6" class="empty">Aucun élève.</td></tr>`;
+}
+
+const statusIcons={Present:"✅",Absent:"❌",Retard:"⏰",Malade:"🤒",Dispensé:"🩹"};
+function renderAttendance(){
+  const cid=Number(attClass.value), date=attDate.value;
+  const students=db.students.filter(s=>s.classId===cid).sort((a,b)=>(Number(a.number)||999)-(Number(b.number)||999));
+  attendanceBody.innerHTML=students.map(s=>{
+    const old=db.attendance.find(a=>a.studentId===s.id&&a.date===date);
+    const status=old?.status||"Present";
+    return `<tr data-student="${s.id}">
+      <td>${esc(s.number)}</td><td class="student-name">${esc(s.last)} ${esc(s.first)}</td>
+      <td><select class="status-select">
+        ${["Present","Absent","Retard","Malade","Dispensé"].map(x=>`<option ${x===status?"selected":""}>${statusIcons[x]} ${x}</option>`).join("")}
+      </select></td>
+      <td><input class="dayobs" value="${esc(old?.obs||"")}"></td>
+    </tr>`;
+  }).join("")||`<tr><td colspan="4" class="empty">Aucun élève dans cette classe.</td></tr>`;
+}
+function normalizeStatus(v){ return v.replace(/^[^\s]+\s/,""); }
+function saveAttendance(){
+  const cid=Number(attClass.value), date=attDate.value;
+  if(!cid||!date) return alert("Choisissez une classe et une date.");
+  [...attendanceBody.querySelectorAll("tr[data-student]")].forEach(tr=>{
+    const sid=Number(tr.dataset.student), status=normalizeStatus(tr.querySelector("select").value), obs=tr.querySelector(".dayobs").value;
+    db.attendance=db.attendance.filter(a=>!(a.studentId===sid&&a.date===date));
+    db.attendance.push({id:uid(),studentId:sid,classId:cid,date,status,obs,activity:attActivity.value});
+  });
+  persist(); alert("Appel enregistré.");
+}
+function markAllPresent(){
+  attendanceBody.querySelectorAll("select").forEach(s=>s.value="✅ Present");
+}
+
+function saveLesson(){
+  const o={
+    id:uid(),classId:Number(lessonClass.value),apsa:lessonApsa.value,date:lessonDate.value,duration:lessonDuration.value,
+    competence:lessonCompetence.value,objective:lessonObjective.value,prereq:lessonPrereq.value,material:lessonMaterial.value,
+    warmup:lessonWarmup.value,s1:lessonS1.value,s2:lessonS2.value,s3:lessonS3.value,criteria:lessonCriteria.value,
+    variables:lessonVariables.value,cooldown:lessonCooldown.value,review:lessonReview.value
+  };
+  db.lessons.unshift(o);persist();renderLessons();alert("Fiche de séance enregistrée.");
+}
+function renderLessons(){
+  if(!db.lessons.length){lessonList.innerHTML="<p class='small'>Aucune fiche enregistrée.</p>";return;}
+  lessonList.innerHTML=db.lessons.map(l=>`
+    <div class="saved-item" style="border:1px solid var(--border);padding:10px;border-radius:9px;margin-bottom:8px">
+      <strong>${esc(l.apsa)}</strong> — ${esc(classNameById(l.classId))} — ${esc(l.date||"")}
+      <div class="small">${esc(l.objective||"Objectif non renseigné")}</div>
+      <div class="actions no-print">
+        <button onclick="loadLesson(${l.id})">Ouvrir</button>
+        <button class="danger" onclick="deleteLesson(${l.id})">Supprimer</button>
+      </div>
+    </div>`).join("");
+}
+function loadLesson(id){
+  const l=db.lessons.find(x=>x.id===id); if(!l)return;
+  lessonClass.value=l.classId;lessonApsa.value=l.apsa;lessonDate.value=l.date;lessonDuration.value=l.duration;
+  lessonCompetence.value=l.competence;lessonObjective.value=l.objective;lessonPrereq.value=l.prereq;lessonMaterial.value=l.material;
+  lessonWarmup.value=l.warmup;lessonS1.value=l.s1;lessonS2.value=l.s2;lessonS3.value=l.s3;lessonCriteria.value=l.criteria;
+  lessonVariables.value=l.variables;lessonCooldown.value=l.cooldown;lessonReview.value=l.review;
+  window.scrollTo({top:0,behavior:"smooth"});
+}
+function deleteLesson(id){ db.lessons=db.lessons.filter(x=>x.id!==id);persist();renderLessons(); }
+
+function renderEvaluation(){
+  const cid=Number(evalClass.value);
+  const students=db.students.filter(s=>s.classId===cid).sort((a,b)=>(Number(a.number)||999)-(Number(b.number)||999));
+  evalBody.innerHTML=students.map(s=>`<tr data-student="${s.id}">
+    <td>${esc(s.number)}</td><td class="student-name">${esc(s.last)} ${esc(s.first)}</td>
+    <td><input class="p" type="number" min="0" max="10" step="0.25" oninput="calcNote(this)"></td>
+    <td><input class="m" type="number" min="0" max="10" step="0.25" oninput="calcNote(this)"></td>
+    <td><input class="n" type="number" readonly></td>
+    <td><input class="o"></td></tr>`).join("")||`<tr><td colspan="6" class="empty">Aucun élève.</td></tr>`;
+}
+function calcNote(el){
+  const tr=el.closest("tr"), p=Number(tr.querySelector(".p").value||0), m=Number(tr.querySelector(".m").value||0);
+  tr.querySelector(".n").value=(p+m).toFixed(2).replace(".00","");
+}
+function saveEvaluation(){
+  const cid=Number(evalClass.value), date=evalDate.value, apsa=evalApsa.value;
+  [...evalBody.querySelectorAll("tr[data-student]")].forEach(tr=>{
+    db.evaluations.push({id:uid(),studentId:Number(tr.dataset.student),classId:cid,date,apsa,
+      performance:tr.querySelector(".p").value,mastery:tr.querySelector(".m").value,
+      note:tr.querySelector(".n").value,obs:tr.querySelector(".o").value});
+  });
+  persist();alert("Évaluation enregistrée.");
+}
+
+function refreshReportStudents(){
+  const cid=Number(reportClass.value);
+  const list=db.students.filter(s=>s.classId===cid).sort((a,b)=>(Number(a.number)||999)-(Number(b.number)||999));
+  reportStudent.innerHTML=list.map(s=>`<option value="${s.id}">${esc(s.last)} ${esc(s.first)}</option>`).join("");
+}
+function renderStudentReport(){
+  const sid=Number(reportStudent.value), s=db.students.find(x=>x.id===sid);
+  if(!s){studentReport.innerHTML="Choisissez un élève.";return;}
+  const att=db.attendance.filter(a=>a.studentId===sid);
+  const evals=db.evaluations.filter(e=>e.studentId===sid);
+  const counts={Present:0,Absent:0,Retard:0,Malade:0,Dispensé:0};
+  att.forEach(a=>counts[a.status]=(counts[a.status]||0)+1);
+  const avg=evals.length?(evals.reduce((x,e)=>x+Number(e.note||0),0)/evals.length).toFixed(2):"—";
+  studentReport.innerHTML=`
+    <div class="profileBox">
+      <div class="avatar">${esc((s.first[0]||"")+(s.last[0]||""))}</div>
+      <div><h2 style="margin:0">${esc(s.last)} ${esc(s.first)}</h2>
+      <div>${esc(classNameById(s.classId))} — N° ${esc(s.number)}</div>
+      <div class="small">${s.medical?`🤒 ${esc(s.medical)}`:"Aucune information médicale enregistrée"}</div></div>
+    </div>
+    <hr style="border:none;border-top:1px solid var(--border);margin:14px 0">
+    <div class="legend">
+      <span class="badge present">✅ Présent : ${counts.Present}</span>
+      <span class="badge absent">❌ Absent : ${counts.Absent}</span>
+      <span class="badge late">⏰ Retard : ${counts.Retard}</span>
+      <span class="badge sick">🤒 Malade : ${counts.Malade}</span>
+      <span class="badge exempt">🩹 Dispensé : ${counts.Dispensé}</span>
+    </div>
+    <p><strong>Moyenne des évaluations :</strong> ${avg}/20</p>
+    <p><strong>Observation générale :</strong> ${esc(s.obs||"—")}</p>
+    <h3>Dernières évaluations</h3>
+    ${evals.slice(-5).reverse().map(e=>`<div>• ${esc(e.date)} — ${esc(e.apsa)} : <strong>${esc(e.note)}/20</strong> ${e.obs?`— ${esc(e.obs)}`:""}</div>`).join("")||"<div class='small'>Aucune évaluation.</div>"}`;
+}
+
+function init(){
+  const today=new Date().toISOString().slice(0,10);
+  attDate.value=today;lessonDate.value=today;evalDate.value=today;
+  loadTeacher();refreshClassSelects();renderClasses();renderStudents();renderAttendance();renderLessons();renderEvaluation();updateDashboard();
+}
+init();
+</script>
+</body>
+</html>
